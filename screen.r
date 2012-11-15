@@ -1,20 +1,26 @@
-# Number of 384 well plates
-plates <- 5
-# Supply data frame with raw CTG values.  
-df <- bmn
-#Indicate column numbers (starting at 1) for DMSO and drug replicates:
-dmsocols <- c(5,6,7)
-drugcols <- c(9,10,11)
-# Column with plate numbers
-platecol <- 1
+esanalyse <- function(df,plates,platecol,dmsocols,drugcols) {
+{
+	if (!is.data.frame(df))
+		stop("Need to supply data frame with CTG values in columns, wells in rows.")
+	if (!is.numeric(plates))
+		stop("Need to supply number of 384-well plates") 
+	if (!isnumeric(platecol))
+		stop("Need to supply column number containing plate IDs (as integers)")
+	if (!is.vector(dmsocols))
+		stop("Need to supply vector with column numbers of DMSO replicates - e.g. c(4,5,6)")
+	if (!is.vector(drugcols))
+		stop("Need to supply vector with column numbers of DMSO replicates - e.g. c(7,8,9)")
+}
 
-
+# Remove any NA rows based on plate ID.
+dfo <- df[!is.na(dfo[,platecol]),]
 # Make sure df is sorted by plate
-dfo <- df[order(df[,platecol]),]
+dfo <- dfo[order(dfo[,platecol]),]
 # Log transform
 dfl <- dfo
 for (i in c(dmsocols,drugcols)) {
 	dfl[,i] <- log(dfl[,i],2)
+}
  
 ## Get plate medians of log transformed data
 # Make a matrix: plates as rows, reps as columns
@@ -58,3 +64,6 @@ dfn$z_dmso <- (dfn$dmsomed - median(dfn$dmsomed))/median(dfn$ad_dmso)
 dfn$z_drug <- (dfn$drugmed - median(dfn$drugmed))/median(dfn$ad_drug)
 dfn$de <- dfn$z_drug - dfn$z_dmso
 
+# Return the normalised data frame
+dfn
+} # Close function bracket
